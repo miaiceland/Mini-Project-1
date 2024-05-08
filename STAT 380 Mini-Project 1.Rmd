@@ -1,0 +1,254 @@
+---
+title: "Stat 380 Mini-Project 1"
+author: "Claire Burcik, Hannah Park, and Mia Iceland"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Front Matter
+```{r, message = FALSE}
+remove(list = ls())
+library(kableExtra)
+library(tidyverse)
+library(readxl)
+
+COD <- read_excel("C:/Users/Claire/Downloads/CODGames2_mp.xlsx")
+```
+
+## Task 2 - Exploring 6 Variables
+
+### Primary Weapon
+
+The variable PrimaryWeapon is a quantitative variable that takes the values of different types guns from Call of Duty. In the game, a primary weapon is your main weapon of use. An example of a weapon within this variable is Type 63, which is a semi-automatic tactical rifle. Another option is a Krig 6, which is an assault rifle. There is no missing data in this variable.
+
+```{r}
+PW <- COD %>% 
+  group_by(PrimaryWeapon)
+
+## Count number of NA values in variable
+sum(is.na(COD$PrimaryWeapon))
+
+## Summary Statistic
+PW_table <- table(PW$PrimaryWeapon)
+prop_table <- PW_table / sum(PW_table)
+
+prop_table%>% kbl(col.names = c("Primary Weapon", "Proportions"))%>%
+  kable_styling()
+
+## Visualization
+ggplot(data= PW, mapping = aes(y = PrimaryWeapon))+
+  geom_bar(color = "black", fill = "purple")+
+  labs(y = "Primary Weapon",
+       x = "Count",
+       title = "Frequency of Different Primary Weapons")+
+  theme(plot.title = element_text(size = 12))
+
+```
+
+From both the proportion table and the bar plot, we gain some insights on the popularity of the different primary weapons for the player. The most popular weapon, an M16, is considered an assault rifle. The second most popular gun, an MP5, is within the weapon class of a sub-machine gun. Finally, the third most popular weapon, the Pelington 703, is a sniper rifle. The fact that the top three primary weapons in the data set are from different "categories" of guns suggest that the player doesn't favor a specific type of gun over others. Instead, they may have have may chosen their primary weapon due to other factors like the amount of damage, reload time, and range of the weapon or based on the map selected.
+
+### Deaths
+
+The variable Deaths measures the amount of times the player died in a single match. This variable is quantitative and takes numeric values greater than or equal to 0. There is no missing data for this column.
+
+```{r}
+## Count number of NA values in variable
+sum(is.na(COD$Deaths))
+
+## Summary Stats
+COD%>%summarize(
+  min = min(Deaths),
+  mean = mean(Deaths),
+  max = max(Deaths),
+  standard_deviation = sd(Deaths))
+
+## Visualization
+COD%>% group_by(Deaths)%>%
+  ggplot(mapping = aes(x = Deaths))+
+  geom_bar(color = "white", fill = "black")+
+  labs(x = "Number of Deaths in a Match",
+        y = "Frequency")
+```
+
+From the summary statistics, we can see that the player ranges greatly in the number of deaths per match with a maximum death count of 42 and a minimum death count of 4 per game. This range is reflected on the histogram. However, the histogram reveals that the distribution of deaths per match is right skewed, which is why the mean is about 15 deaths per game.
+
+
+### Choice
+
+In the Call of Duty (COD) dataset, the variable 'Choice' is a categorical variable that identifies which map was chosen to be played. In the game, a map is a battlefield where players battle other enemy players. An example of a map within this variable is Miami Strike, which is a game mode located in fictional version of Miami. Another map is Apocalypse, which depicts a dystopian, apocalyptic current-day Earth. There is 1 missing data input for this variable.
+
+```{r}
+PW <- 
+  COD %>% 
+  group_by(Choice)
+
+## Count number of NA values in variable
+sum(is.na(COD$Choice))
+
+## Remove NA values
+PW1 <-
+  COD %>%
+  filter(!is.na(Choice))
+
+## Summary Statistic
+PW_table1 <- table(PW1$Choice)
+prop_table1 <- PW_table1 / sum(PW_table1)
+
+prop_table%>% kbl(col.names = c("Map Choice", "Proportions"))%>%
+  kable_styling()
+
+## Visualization
+ggplot(data= PW1, mapping = aes(y = Choice))+
+  geom_bar(color = "black", fill = "pink")+
+  labs(y = "Map Choices",
+       x = "Count",
+       title = "Frequency of Different Map Choices")+
+  theme(plot.title = element_text(size = 12))
+
+```
+
+From the proportion table and the bar plot, it is clear which maps are most popular among the players of the COD. The most popular maps are Crossroads Strike, Diesel, and Rush. Rush is a multiplayer map with a premise of playing paintball. Crossroads Strike a 6 versus 6 player game in Uzbeck-Afghan during the Cold War. Finally, Diesel is a multiplayer map taking place at a gas station during the Cold War. A common theme amongst these three maps is that they are all multiplayer maps. A possible conclusion is that users like to play with friends they know outside of COD rather than by themselves against other random players.
+
+### Score
+
+The variable 'Score' is a quantitative variable that creates numerical values for different types of successes one achieves when playing the game. Different ways to gain points are killing other opponents, assisting a player in killing an opponent, certain modes of COD can require the player to complete certain tasks or challenges, and more. There is numerical value assigned to each achievement and at the end of the game, these points are added up to total a final score. In general, this score determines how successful the player was at playing the game. There is no missing data in this variable.
+
+```{r}
+## Count number of NA values in variable
+sum(is.na(COD$Score))
+
+## Summary Statistics
+COD %>%
+  summarize(
+  min = min(Score),
+  mean = mean(Score),
+  max = max(Score),
+  standard_deviation = sd(Score))
+
+## Visualization
+COD %>% 
+  group_by(Score) %>%
+  ggplot(mapping = aes(x = Score))+
+  geom_histogram(color = "black", fill = "pink")+
+  labs(x = "Score in a Match",
+        y = "Frequency")
+```
+
+From the summary statistics, we can see that the player ranges greatly in the number of Score per match, with a maximum score of 7315 points and a minimum score of 100 points per game. A possible conclusion is that COD is popular and attracts all types of users, from inexperienced gamers to elites alike. The histogram reveals that the greatest frequency in score is between 2000-28000 points which mean score is 2944.531. This means that the data is slightly right skewed. 
+
+### Damage 
+
+The Damage variable in Call of Duty symbolizes the amount of damage the player causes during the game. There are multiple factors that can alter the amount of damage that a player causes. An example of a factor that can alter the amount of damage a player causes are boosts that can cause a player's damage to be higher. The variable is quantitative and there are no missing values in the column. 
+```{r}
+## Count number of NA values in Damage
+sum(is.na(COD$Damage))
+
+## Summary Statistics 
+COD %>%
+  summarize(
+    min = min(Damage),
+    mean = mean(Damage),
+    max = max(Damage),
+    std = sd(Damage)
+  )
+
+## Visualization
+ggplot(data = COD, 
+       mapping = aes(x = Damage)) +
+  geom_histogram(color = "white", fill = "blue") +
+  labs(x = "Damage",
+       y = "Count",
+       title = "The Score Distribution of the Amount of Damage Caused")
+```
+
+From this table, we can see that the lowest score is around 50, the highest is around 900, and the mean is around 400. There is a large range of damage a player can cause. The data is right skewed which means the mean is higher than the median with there being more higher damage scores than lower damage scores. 
+
+### Eliminations
+
+In Call of Duty eliminations are like kills but it includes the kills you assisted in as well. For example, if the player initially shot a player but did not fully kill them, that kill also goes towards their elimination statistic. The variable is quantitative and there are no missing variables.
+
+```{r}
+## Count number of NA values in Damage
+sum(is.na(COD$Eliminations))
+
+## Summary Statistics 
+COD %>%
+  summarize(
+    min = min(Eliminations),
+    mean = mean(Eliminations),
+    max = max(Eliminations),
+    std = sd(Eliminations)
+  )
+
+## Visualization
+ggplot(data = COD, 
+       mapping = aes(x = Eliminations)) +
+  geom_histogram(color = "black", fill = "lightblue") +
+  labs(x = "Eliminations",
+       y = "Count",
+       title = "The Score Distribution of the Number of Eliminations a Player had")
+```
+
+From this graph we can see that most players have an average of about 15 eliminations, there is a low of around 1, and a high of about 40. The range of the data is smaller between 0 and 40, but there is still a range of values. The data is right skewed meaning the mean is higher than the median with there being more higher damage scores than lower damage scores.
+
+## Task 3 - List of Questions
+
+1. Do the values in the variable 'Choice' represent the map that the player chose or the map that the majority vote chose?
+
+2. What does the variable 'FullPartial' represent and mean in the context of this data set?
+
+3. For the 'Result' variable, what do the two numbers represent, is there a specific way it is laid out and for what reason? 
+
+## Task 4 - Asking a Question that can be Answered Using the Dataset and Data Visualization
+
+### Is the player’s performance, as quantified by the amount of experience points gained (TotalXP variable) changing over time?
+```{r}
+COD %>%
+  mutate(date_months = months(Date, abbreviate = FALSE))%>%
+  group_by(date_months)%>%
+  ggplot(mapping = aes(x = date_months, y = TotalXP))+
+  geom_boxplot(color="black", fill="green")+ scale_x_discrete(limits = c("June", "July", "August"))+
+  labs(x = "Months",
+       y = "Total XP",
+       title = "Total XP Over Time")
+ 
+
+```
+
+Answer: Based on the plot, it appears that the players performance did not change very much over the time period of this data set. Both the median and other quartile XP values are very similar to one another across all 3 months. The only big difference in values would come from the outliers of the plots each month. Even then, the month of July is the only month to have a maximum value that is much larger than June and August (almost 45,000 XP points compared to maxes of about 35000 XP in June and 30000 XP in August). In fact, according to the graph, the player had some of their best performances in July which is right in the middle of the time period. Therefore, an increase in time does not seem to have a positive or negative effect on the players performance.
+
+### Question: Does the weapon used during the round have any affect on the overall score of the game?
+
+Approach: To best approach this question, we want to compare the variable 'PrimaryWeapon' with the variable 'Score' using the 'COD' data set. We chose a boxplot to visualize the data because this type of graph works best when comparing one categorical (Primary Weapon) and one quantitative (Score) variable.
+
+```{r}
+ggplot(data = COD,
+       mapping = aes(x = PrimaryWeapon, y = Score)) +
+  geom_boxplot(color="black", fill="lightblue") +
+  labs(x = "Primary Weapon",
+       y = "Overall Score",
+       title = "Overall score based on Primary Weapon chosen")
+```
+
+Answer: From the graph, there may be a slight advantage to using an AK-47, however, other weapons don't seem to have an overall impact on this player's score. Looking at the weapon AK-47, there is a wide range of scores, but the median value is significantly higher than the the median score of all other weapons. There are also other factors that could impact the range of scores, some players may just like using one particular gun which is why there are low scores and higher scores when using that weapon as a the primary weapon. 
+
+## Group Member Contributions
+
+### Claire Burcik: 
+- Exploration of variables PrimaryWeapon and Deaths
+- First question in task 3
+- Task 4 part 1
+
+### Hannah Park:
+- Exploration of variables Damage and Elimination
+- Third question in task 3 
+- Graph and Answer (second paragraph) for Task 4 part 2
+
+### Mia Iceland:
+- Exploration of variables Score and Choice
+- Second question in task 3 
+- Approach (first paragraph) for Task 4 part 2

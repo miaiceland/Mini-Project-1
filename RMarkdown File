@@ -1,0 +1,54 @@
+---
+title: "Stat 380 Mini-Project 1"
+author: "Claire Burcik, Hannah Park, and Mia Iceland"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Front Matter
+```{r, message = FALSE}
+remove(list = ls())
+library(kableExtra)
+library(tidyverse)
+library(readxl)
+
+COD <- read_excel("C:/Users/Claire/Downloads/CODGames2_mp.xlsx")
+```
+
+## Task 2 - Exploring 6 Variables
+
+### Primary Weapon
+
+The variable PrimaryWeapon is a quantitative variable that takes the values of different types guns from Call of Duty. In the game, a primary weapon is your main weapon of use. An example of a weapon within this variable is Type 63, which is a semi-automatic tactical rifle. Another option is a Krig 6, which is an assault rifle. There is no missing data in this variable.
+
+```{r}
+PW <- COD %>% 
+  group_by(PrimaryWeapon)
+
+## Count number of NA values in variable
+sum(is.na(COD$PrimaryWeapon))
+
+## Summary Statistic
+PW_table <- table(PW$PrimaryWeapon)
+prop_table <- PW_table / sum(PW_table)
+
+prop_table%>% kbl(col.names = c("Primary Weapon", "Proportions"))%>%
+  kable_styling()
+
+## Visualization
+ggplot(data= PW, mapping = aes(y = PrimaryWeapon))+
+  geom_bar(color = "black", fill = "purple")+
+  labs(y = "Primary Weapon",
+       x = "Count",
+       title = "Frequency of Different Primary Weapons")+
+  theme(plot.title = element_text(size = 12))
+
+```
+
+From both the proportion table and the bar plot, we gain some insights on the popularity of the different primary weapons for the player. The most popular weapon, an M16, is considered an assault rifle. The second most popular gun, an MP5, is within the weapon class of a sub-machine gun. Finally, the third most popular weapon, the Pelington 703, is a sniper rifle. The fact that the top three primary weapons in the data set are from different "categories" of guns suggest that the player doesn't favor a specific type of gun over others. Instead, they may have have may chosen their primary weapon due to other factors like the amount of damage, reload time, and range of the weapon or based on the map selected.
+
+## Group Member Contributions
